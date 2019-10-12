@@ -1,3 +1,40 @@
 <resources>
     <string name="app_name">Zibal SDK MPOS</string>
+    <string name="copyRightEn">TosanTechno All rights reserved . 2017</string>
+    <string name="qrScan">اسکن بارکد</string>
+    <string name="mposDeviceSett">تنظیمات دستگاه</string>
+    <string name="injectKey">کلید گذاری</string>
+    <string name="setting">پیکربندی</string>
+    <string name="connect">اتصال به دستگاه</string>
+    <string name="title_paired_devices">Paired Device</string>
+    <string name="title_other_devices">Other device</string>
+    <string name="button_scan">Scan</string>
+    <string name="none_paired">Not paired</string>
+    <string name="scanning">Scanning</string>
+    <string name="none_found">Not found</string>
+    <string name="select_device">Select a device</string>
+    <string name="pleaseTakeMagCard">لطفا کارت بکشید...</string>
+    <string name="tryAgain">تلاش مجدد</string>
+
+    <string name="service_name">Card Emulation</string>
+    <string name="card_title">Sample Loyalty Card</string>
+    <string name="response_label">Response:</string>
+    <string name="request_label">Request:</string>
+
+    <string name="defaultsetting">تنظیمات پیش فرض</string>
+    <string name="web_service_url">https://merchant.tosantechno.com/</string>
+    <string name="balance">موجودی</string>
+    <!-- <string name="web_service_url">https://192.168.19.73:2222/</string>-->
+
+
+    <string name="TopUp">اپراتور خود را انتخاب کنید</string>
+
+    <string-array name="operator">
+        <item>MCI</item>
+        <item>MTN</item>
+        <item>RighTel</item>
+        <item>Taliya</item>
+    </string-array>
+
+
 </resources>
