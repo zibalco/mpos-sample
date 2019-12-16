@@ -1,4 +1,4 @@
-package ir.zibal.zibalsdkmpos;
+package ir.zibal.zibalsdk;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;

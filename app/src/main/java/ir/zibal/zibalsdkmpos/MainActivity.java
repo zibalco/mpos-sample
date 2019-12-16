@@ -1,39 +1,59 @@
 package ir.zibal.zibalsdkmpos;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import androidx.appcompat.app.AppCompatActivity;
+import android.widget.Button;
 
-import java.util.ArrayList;
 
-import ir.zibal.zibalsdk.DeviceList;
+import ir.zibal.zibalsdk.ZibalAPI;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final int REQUEST_BT_DISCOVER = 2;
+    Button btn_balance;
+    Button btn_inject_keys;
+    Button btn_config_zibal;
+    Button btn_bluetooth;
+    ZibalAPI zibalAPI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final DeviceList test = new DeviceList(this);
+        initViews();
 
-        findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                test.getBalance();
-            }
-        });
-        test.initDevice();
-
-        Intent intent = new Intent(this,DeviceListActivity.class);
-        startActivityForResult(intent, REQUEST_BT_DISCOVER);
+        zibalAPI = new ZibalAPI(this);
     }
 
+    void initViews() {
+        btn_balance = findViewById(R.id.btn_balance);
+        btn_inject_keys = findViewById(R.id.btn_inject_keys);
+        btn_config_zibal = findViewById(R.id.btn_config);
+        btn_bluetooth = findViewById(R.id.btn_bluetooth);
+
+        btn_balance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                zibalAPI.getBalance();
+            }
+        });
+
+        btn_inject_keys.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                zibalAPI.injectKeys();
+            }
+        });
+
+        btn_bluetooth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                zibalAPI.navigateToBluetooth(MainActivity.this);
+            }
+        });
+
+
+    }
 
 
 }
