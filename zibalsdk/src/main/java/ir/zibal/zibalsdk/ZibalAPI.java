@@ -7,12 +7,14 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 
@@ -24,6 +26,7 @@ import com.tosantechno.mpos.pax.d180.DeviceKeypad;
 import com.tosantechno.mpos.pax.d180.GetMposResponse;
 import com.tosantechno.mpos.pax.d180.ParsException;
 import com.tosantechno.mpos.pax.d180.RequestTrnParam;
+import com.tosantechno.mpos.pax.d180.ResponseTrnParam;
 import com.tosantechno.mpos.pax.d180.TrnManager;
 
 import org.json.JSONException;
@@ -35,9 +38,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OptionalDataException;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
+
+import ir.zibal.zibalsdk.datatypes.ZibalInitialResponse;
 
 public class ZibalAPI {
 
@@ -60,8 +67,58 @@ public class ZibalAPI {
         this.context = context;
         this.activity = (Activity) context;
         this.appCtx = context.getApplicationContext();
+
+        pay = new TrnPayment(context);
         this.initDevice();
         this.defaultSettings();
+    }
+
+    public void startPayment(String amount) {
+
+
+        if (amount.length() <= 0) {
+            Toast.makeText(context, "مبلغ نمی تواند کمتر از ۱۰۰۰ ریال باشد",
+                    Toast.LENGTH_SHORT).show();
+
+            return;
+        }
+        int amountRQ = Integer.parseInt(amount);
+        if (amountRQ < 1000) {
+            Toast.makeText(context, "مبلغ نمی تواند کمتر از ۱۰۰۰ ریال باشد",
+                    Toast.LENGTH_SHORT).show();
+        } else {
+
+            try {
+
+                // mySpinnerDialog.show();
+                Random random = new Random();
+                int rand = 100000 + random.nextInt(900000);
+                String ReserveNum = rand + "";
+                rand = 70000 + random.nextInt(900000);
+                String traceNo = rand + "";
+
+
+                RequestTrnParam requestTrnParam = new RequestTrnParam();
+                requestTrnParam.RequestTrnParamGoods(trMngr.PROCESSING_CODE_GOODS_AND_SERVICE, amount, "0", traceNo, "364", language, 600000);
+                GetMposResponse getMposResponse = trMngr.getTransaction(requestTrnParam);
+
+                doTrnsPayment(getMposResponse.data, getMposResponse.pinBlk, bsMngr.readSN(), getMposResponse.ksn, ReserveNum, getMposResponse.amount, "EN_GOODS","","","");
+
+            } catch (IOException e) {
+                Toast.makeText(context.getApplicationContext(), "عملیات لغو شد!", Toast.LENGTH_LONG).show();
+//                mySpinnerDialog.hide();
+                e.printStackTrace();
+            } catch (ParsException e) {
+                Toast.makeText(context.getApplicationContext(), "عملیات لغو شد!", Toast.LENGTH_LONG).show();
+//                mySpinnerDialog.hide();
+                e.printStackTrace();
+            } catch (DeviceException e) {
+                Toast.makeText(context.getApplicationContext(), "عملیات لغو شد!", Toast.LENGTH_LONG).show();
+//                mySpinnerDialog.hide();
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public void getBalance() {
@@ -86,7 +143,7 @@ public class ZibalAPI {
 
             GetMposResponse getMposResponse = trMngr.getTransaction(requestTrnParam);
 
-//            doTrnsPayment(getMposResponse.data, getMposResponse.pinBlk, bsMngr.readSN(), getMposResponse.ksn, ReserveNum, "", "EN_BALANCE","","","");
+            doTrnsPayment(getMposResponse.data, getMposResponse.pinBlk, bsMngr.readSN(), getMposResponse.ksn, ReserveNum, "", "EN_BALANCE","","","");
 
 
         } catch (IOException e) {
@@ -106,6 +163,92 @@ public class ZibalAPI {
     }
 
 
+    private void doTrnsPayment(final String secureData, final String pinBlockStr, final String pinPadSerial, final String PINBLK_KSN_KEY, final String ReserveNum, final String Amount, final String TransType,final String BillID,final String PayID,final String TopUpMobileNo) {
+        this.activity.runOnUiThread(new Runnable() {
+
+
+            @Override
+            public void run() {
+
+                try {
+
+
+                    readImei();
+                    readImei();
+
+
+                    pay.mposPaymentTransRequest(TerminalSerial, secureData, pinBlockStr, PINBLK_KSN_KEY, pinPadSerial, ReserveNum, Amount, TransType,BillID,PayID,TopUpMobileNo, new Handler.Callback() {
+                        @Override
+                        public boolean handleMessage(Message msg) {
+                            final JSONObject resp = (JSONObject) msg.obj;
+
+                            ZibalAPI.this.activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+
+
+                                    try {
+//                                        mySpinnerDialog.hide();
+                                        String data = resp.getString("SecureResponse");
+
+                                        Log.e("data", data);
+
+                                        String res = trMngr.giveResponse(new ResponseTrnParam(data, language, 600000));
+
+                                        Log.e("giveResponse", res);
+
+                                        if (res.equals("00")) {
+//                                            if(!(TransType.equals("EN_BALANCE"))) {
+//                                                paySuccess(resp.toString());}
+
+                                        } else {
+                                            Toast.makeText(ZibalAPI.this.activity, "تراکنش تایید نشد تراکنش ناموفق", Toast.LENGTH_LONG).show();
+
+
+                                        }
+
+                                    } catch (Exception e) {
+//                                        mySpinnerDialog.hide();
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                            });
+                            return false;
+                        }
+                    }, new Handler.Callback() {
+                        @Override
+                        public boolean handleMessage(final Message msg) {
+                            ZibalAPI.this.activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+//                                        mySpinnerDialog.hide();
+                                    } catch (Exception ex) {
+                                    }
+                                    ZibalAPI.notify(ZibalAPI.this.activity, (String) msg.obj.toString());
+                                }
+                            });
+                            return false;
+                        }
+                    });
+
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+            }
+        });
+    }
+
+//    private void paySuccess(String resp) {
+//        Intent intent = new Intent(this, PaymentResult.class);
+//        intent.putExtra("response", resp);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        startActivity(intent);
+//        finish();
+//    }
 
     /***/
     private void initDevice() {
@@ -142,7 +285,8 @@ public class ZibalAPI {
             else {
                 TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 
-                TerminalSerial = telephonyManager.getDeviceId();
+//                TerminalSerial = telephonyManager.getDeviceId();
+                TerminalSerial = "09912772610";
 
 
 
@@ -350,4 +494,7 @@ public class ZibalAPI {
         Toast.makeText(appCtx, "تنظیمات با موفقیت ذخیره شد", Toast.LENGTH_LONG).show();
 
     }
+
+
+
 }

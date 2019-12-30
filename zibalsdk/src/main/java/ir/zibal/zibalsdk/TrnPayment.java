@@ -116,8 +116,8 @@ public class TrnPayment {
         initConfig();
         JSONObject params = new JSONObject();
         try {
-            params.put("imeiSerial", terminalSerial);
-            params.put("mposSerial", pinPadSerial);
+            params.put("IMEISerial", terminalSerial);
+            params.put("MPOSSerial", pinPadSerial);
             params.put("isSystemUser", "true");
 
         } catch (JSONException e) {
@@ -163,7 +163,7 @@ public class TrnPayment {
         if (terminalID == "" || terminalID == null) {
 //            Main.mySpinnerDialog.hide();//todo uncomment
             Toast.makeText(ctx, "کلید گذاری انجام نشده", Toast.LENGTH_LONG).show();
-            return;
+//            return;
         }
         JSONObject CardData = new JSONObject();
         JSONObject params = new JSONObject();

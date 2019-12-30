@@ -48,7 +48,7 @@ public class Bluetooth extends AppCompatActivity {
     public void checkBluetooth() {
 
         Intent intent;
-        if (!btAdapter.isEnabled()) {
+        if (btAdapter!= null && !btAdapter.isEnabled()) {
 
             intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(intent, REQUEST_BT_ENABLE);
