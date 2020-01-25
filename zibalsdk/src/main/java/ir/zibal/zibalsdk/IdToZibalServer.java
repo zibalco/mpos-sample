@@ -19,6 +19,8 @@ public class IdToZibalServer extends AsyncTask<String, Void, ZibalInitialRespons
 
     private Context context;
     private Activity activity;
+    private String zibalId;
+
 
     @Override
     protected void onPreExecute() {
@@ -26,16 +28,18 @@ public class IdToZibalServer extends AsyncTask<String, Void, ZibalInitialRespons
 //            pb.setVisibility(View.VISIBLE);
     }
 
-    public IdToZibalServer(Context context, Activity activity) {
+    public IdToZibalServer(Context context, Activity activity,String zibalId) {
         this.context = context;
         this.activity = activity;
+        this.zibalId = zibalId;
     }
 
     @Override
     protected  ZibalInitialResponse doInBackground(String... strings) {
 
         ZibalServer zibalServer = new ZibalServer();
-        HashMap<String, String> response = zibalServer.getOrder(strings[0], "05114847");
+
+        HashMap<String, String> response = zibalServer.getOrder(zibalId, getterminalID());
 
         ZibalInitialResponse initialResponse = new ZibalInitialResponse();
         if (response == null){
@@ -63,7 +67,8 @@ public class IdToZibalServer extends AsyncTask<String, Void, ZibalInitialRespons
     @Override
     protected void onPostExecute(ZibalInitialResponse zibalInitialResponse) {
         super.onPostExecute(zibalInitialResponse);
-        ZibalAPI zibalAPI = new ZibalAPI(context);
+
+        ZibalAPI zibalAPI = ZibalAPI.getInstance(context);
 //            isKeyboardLocked = false;
 //            pb.setVisibility(View.INVISIBLE);
         switch (zibalInitialResponse.getInnerStatus()){
@@ -79,7 +84,7 @@ public class IdToZibalServer extends AsyncTask<String, Void, ZibalInitialRespons
                 Toast.makeText(activity, "شناسه قبلا پرداخت شده.",Toast.LENGTH_SHORT).show();
                 break;
             case ZibalInitialResponse.READY_TO_PAY:
-                zibalAPI.startPayment(""+zibalInitialResponse.getPrice());
+                zibalAPI.startPayment(""+zibalInitialResponse.getPrice(),zibalId);
         }
     }
 

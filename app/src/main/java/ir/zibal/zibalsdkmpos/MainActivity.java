@@ -14,7 +14,6 @@ public class MainActivity extends AppCompatActivity {
 
     Button btn_balance;
     Button btn_inject_keys;
-    Button btn_config_zibal;
     Button btn_bluetooth;
     Button btn_payment;
     ZibalAPI zibalAPI;
@@ -25,13 +24,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initViews();
 
-        zibalAPI = new ZibalAPI(this);
+        zibalAPI = ZibalAPI.getInstance(this);
     }
 
     void initViews() {
         btn_balance = findViewById(R.id.btn_balance);
         btn_inject_keys = findViewById(R.id.btn_inject_keys);
-        btn_config_zibal = findViewById(R.id.btn_config);
         btn_bluetooth = findViewById(R.id.btn_bluetooth);
         btn_payment = findViewById(R.id.btn_payment);
 
@@ -59,10 +57,29 @@ public class MainActivity extends AppCompatActivity {
         btn_payment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new IdToZibalServer(MainActivity.this,MainActivity.this).execute("17");
+                Intent intent = new Intent(getApplicationContext(), InputActivity.class);
+                startActivityForResult(intent, 1001);
+
 
             }
         });
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == 1001) {
+
+            if (resultCode == RESULT_OK) {
+                String zibalId = data.getStringExtra("zibalId");
+                new IdToZibalServer(MainActivity.this, MainActivity.this,zibalId).execute();
+            }
+
+
+        }
+
+
 
     }
 

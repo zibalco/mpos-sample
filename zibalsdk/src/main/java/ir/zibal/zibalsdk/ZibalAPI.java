@@ -2,12 +2,18 @@ package ir.zibal.zibalsdk;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
@@ -15,6 +21,8 @@ import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -44,10 +52,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
+import ir.zibal.zibalsdk.datatypes.PardakhtNovinAppResponse;
 import ir.zibal.zibalsdk.datatypes.ZibalInitialResponse;
 
 public class ZibalAPI {
 
+    private static ZibalAPI zibalAPIInstance;
     private Context context;
     private Context appCtx;
     private Activity activity;
@@ -57,7 +67,8 @@ public class ZibalAPI {
     private DeviceDisplay dpMngr;
     private DeviceKeypad kpMngr;
     private byte language = 1;
-    static String  TerminalSerial="";
+    static String TerminalSerial = "";
+    String RefNum = "";
     private byte manualFlag = 0;
     private byte topUpSecMobileNoFlag = 0;
 
@@ -73,7 +84,15 @@ public class ZibalAPI {
         this.defaultSettings();
     }
 
-    public void startPayment(String amount) {
+    public static ZibalAPI getInstance(Context context) {
+        if (zibalAPIInstance == null) {
+            zibalAPIInstance = new ZibalAPI(context);
+            return zibalAPIInstance;
+        }
+        return zibalAPIInstance;
+    }
+
+    public void startPayment(String amount,String zibalId) {
 
 
         if (amount.length() <= 0) {
@@ -102,7 +121,7 @@ public class ZibalAPI {
                 requestTrnParam.RequestTrnParamGoods(trMngr.PROCESSING_CODE_GOODS_AND_SERVICE, amount, "0", traceNo, "364", language, 600000);
                 GetMposResponse getMposResponse = trMngr.getTransaction(requestTrnParam);
 
-                doTrnsPayment(getMposResponse.data, getMposResponse.pinBlk, bsMngr.readSN(), getMposResponse.ksn, ReserveNum, getMposResponse.amount, "EN_GOODS","","","");
+                doTrnsPayment(zibalId,getMposResponse.data, getMposResponse.pinBlk, bsMngr.readSN(), getMposResponse.ksn, ReserveNum, getMposResponse.amount, "EN_GOODS", "", "", "");
 
             } catch (IOException e) {
                 Toast.makeText(context.getApplicationContext(), "عملیات لغو شد!", Toast.LENGTH_LONG).show();
@@ -140,10 +159,9 @@ public class ZibalAPI {
             Log.w("requestTrnParam_traceNO", requestTrnParam.traceNO);
 
 
-
             GetMposResponse getMposResponse = trMngr.getTransaction(requestTrnParam);
 
-            doTrnsPayment(getMposResponse.data, getMposResponse.pinBlk, bsMngr.readSN(), getMposResponse.ksn, ReserveNum, "", "EN_BALANCE","","","");
+            doTrnsPayment("",getMposResponse.data, getMposResponse.pinBlk, bsMngr.readSN(), getMposResponse.ksn, ReserveNum, "", "EN_BALANCE", "", "", "");
 
 
         } catch (IOException e) {
@@ -163,7 +181,7 @@ public class ZibalAPI {
     }
 
 
-    private void doTrnsPayment(final String secureData, final String pinBlockStr, final String pinPadSerial, final String PINBLK_KSN_KEY, final String ReserveNum, final String Amount, final String TransType,final String BillID,final String PayID,final String TopUpMobileNo) {
+    private void doTrnsPayment(final String zibalId,final String secureData, final String pinBlockStr, final String pinPadSerial, final String PINBLK_KSN_KEY, final String ReserveNum, final String Amount, final String TransType, final String BillID, final String PayID, final String TopUpMobileNo) {
         this.activity.runOnUiThread(new Runnable() {
 
 
@@ -172,12 +190,9 @@ public class ZibalAPI {
 
                 try {
 
-
-                    readImei();
                     readImei();
 
-
-                    pay.mposPaymentTransRequest(TerminalSerial, secureData, pinBlockStr, PINBLK_KSN_KEY, pinPadSerial, ReserveNum, Amount, TransType,BillID,PayID,TopUpMobileNo, new Handler.Callback() {
+                    pay.mposPaymentTransRequest(TerminalSerial, secureData, pinBlockStr, PINBLK_KSN_KEY, pinPadSerial, ReserveNum, Amount, TransType, BillID, PayID, TopUpMobileNo, new Handler.Callback() {
                         @Override
                         public boolean handleMessage(Message msg) {
                             final JSONObject resp = (JSONObject) msg.obj;
@@ -198,8 +213,9 @@ public class ZibalAPI {
                                         Log.e("giveResponse", res);
 
                                         if (res.equals("00")) {
-//                                            if(!(TransType.equals("EN_BALANCE"))) {
-//                                                paySuccess(resp.toString());}
+                                            if (!(TransType.equals("EN_BALANCE"))) {
+                                                paySuccess(zibalId,resp.toString());
+                                            }
 
                                         } else {
                                             Toast.makeText(ZibalAPI.this.activity, "تراکنش تایید نشد تراکنش ناموفق", Toast.LENGTH_LONG).show();
@@ -242,13 +258,110 @@ public class ZibalAPI {
         });
     }
 
-//    private void paySuccess(String resp) {
-//        Intent intent = new Intent(this, PaymentResult.class);
-//        intent.putExtra("response", resp);
-//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        startActivity(intent);
-//        finish();
-//    }
+    private void paySuccess(String zibalId,String resp) {
+
+        try {
+            JSONObject jRes = new JSONObject((String) resp);
+            String result = jRes.getString("Result");
+
+            if (result.equals("erSucceed")) {
+
+
+                RefNum = getJsonData(jRes, "ReferenceNum");
+                VerifyMobTransResult(zibalId,jRes);
+                Toast.makeText(context, "پرداخت با موفقیت انجام پذیرفت", Toast.LENGTH_LONG).show();
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void VerifyMobTransResult(String zibalId,JSONObject response) {
+
+        //todo call verify ZIBAL API
+        new PushTransaction(zibalId).execute(response);
+//        pay.mposVerifyTransRequest(RefNum, new Handler.Callback() {
+//            @Override
+//            public boolean handleMessage(Message msg) {
+//
+//
+//                final JSONObject result = (JSONObject) msg.obj;
+//                activity.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//                    }
+//                });
+//
+//                return false;
+//            }
+//        }, new Handler.Callback() {
+//            @Override
+//            public boolean handleMessage(Message msg) {
+//                ZibalAPI.notify(appCtx, msg.obj.toString());
+//                return false;
+//            }
+//        });
+
+    }
+
+    private class PushTransaction extends AsyncTask<JSONObject, Void, Boolean> {
+
+        byte[] encryptedResponse;
+        String zibalId;
+
+        public PushTransaction(String zibalId) {
+            this.zibalId = zibalId;
+        }
+
+        @Override
+        protected Boolean doInBackground(JSONObject... jsonObjects) {
+            ZibalServer zibalServer = new ZibalServer();
+            String terminalID = "";
+            try {
+                FileInputStream fileInputStream = null;
+                fileInputStream = context.openFileInput("terminalINF.DAT");
+                ObjectInputStream stream = new ObjectInputStream(fileInputStream);
+                TerminalINF terminalINF = (TerminalINF) stream.readObject();
+                stream.close();
+                fileInputStream.close();
+                terminalID = (terminalINF.terminalID);
+
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            HashMap<String,String> response = zibalServer.taiidPardakht(zibalId,
+                    jsonObjects[0].optString("Rrn"),
+                    jsonObjects[0].optString("MaskPan"),
+                    jsonObjects[0].optString("referenceNum"),
+                    terminalID,
+                    ((System.currentTimeMillis()/1000) + ""));
+            if (response != null && !response.containsKey("isConnectionStablished") && response.get("9F00").equals("01"))
+                return true;
+            else{
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            //todo toast zibal response
+        }
+    }
+
+    private String getJsonData(JSONObject jRes, String ID) throws JSONException {
+        return jRes.has(ID) ? jRes.getString(ID) : "";
+    }
+
 
     /***/
     private void initDevice() {
@@ -261,26 +374,26 @@ public class ZibalAPI {
     }
 
 
-    public void navigateToBluetooth(Activity activity){
+    public void navigateToBluetooth(Activity activity) {
         Intent intent = new Intent(activity, Bluetooth.class);
         activity.startActivity(intent);
     }
 
     private void makeRequest() {
-        ActivityCompat.requestPermissions((Activity) context,new String[]{Manifest.permission.READ_PHONE_STATE},1111);
+        ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_PHONE_STATE}, 1111);
     }
 
     public static void notify(Context ctx, String msg) {
         Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show();
     }
 
-    void readImei(){
+    void readImei() {
 
         try {
 
 
-            int Perm= ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE);
-            if (Perm!= PackageManager.PERMISSION_GRANTED)
+            int Perm = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE);
+            if (Perm != PackageManager.PERMISSION_GRANTED)
                 makeRequest();
             else {
                 TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -289,13 +402,12 @@ public class ZibalAPI {
                 TerminalSerial = "09912772610";
 
 
-
                 //Log.i("TerminalSerial",TerminalSerial);
             }
 
-        }catch (Exception ex){
+        } catch (Exception ex) {
             //  mySpinnerDialog.hide();
-            notify(context,"خطا در خواندن سریال دستگاه");
+            notify(context, "خطا در خواندن سریال دستگاه");
 
         }
 
@@ -323,13 +435,11 @@ public class ZibalAPI {
             PinPadSerial = bsMngr.readSN();
 
 
-
             readImei();
 
-            if (TerminalSerial=="")
-            {
+            if (TerminalSerial == "") {
                 // mySpinnerDialog.hide();
-                Toast.makeText(context,"خطا در خواندن سریال دستگاه",Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "خطا در خواندن سریال دستگاه", Toast.LENGTH_LONG).show();
                 return;
             }
 
@@ -348,7 +458,7 @@ public class ZibalAPI {
                                 FileOutputStream outputStream = appCtx.openFileOutput("terminalINF.DAT", Context.MODE_PRIVATE);
                                 ObjectOutputStream stream = new ObjectOutputStream(outputStream);
 
-                                stream.writeObject(new TerminalINF( result.getString("terminalId").toString(),result.getString("merchantId").toString()));
+                                stream.writeObject(new TerminalINF(result.getString("terminalId").toString(), result.getString("merchantId").toString()));
                                 stream.flush();
                                 stream.close();
                                 outputStream.flush();
@@ -456,12 +566,12 @@ public class ZibalAPI {
         }
     }
 
-    private void defaultSettings(){
+    private void defaultSettings() {
         try {
             FileOutputStream outputStream = appCtx.openFileOutput("config.DAT", Context.MODE_PRIVATE);
             ObjectOutputStream stream = new ObjectOutputStream(outputStream);
 
-            ConfigParam param = new ConfigParam("fa", context.getString(R.string.web_service_url), "0",false,false);
+            ConfigParam param = new ConfigParam("fa", context.getString(R.string.web_service_url), "0", false, false);
             stream.writeObject(param);
             stream.flush();
             stream.close();
@@ -494,7 +604,6 @@ public class ZibalAPI {
         Toast.makeText(appCtx, "تنظیمات با موفقیت ذخیره شد", Toast.LENGTH_LONG).show();
 
     }
-
 
 
 }
