@@ -3,6 +3,7 @@ package ir.zibal.zibalsdk;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.FileInputStream;
@@ -41,6 +42,7 @@ public class IdToZibalServer extends AsyncTask<String, Void, ZibalInitialRespons
 
         HashMap<String, String> response = zibalServer.getOrder(zibalId, getterminalID());
 
+        Log.d("getTerminalId", "doInBackground: "+getterminalID());
         ZibalInitialResponse initialResponse = new ZibalInitialResponse();
         if (response == null){
             initialResponse.setInnerStatus(ZibalInitialResponse.DISCONNECT);
