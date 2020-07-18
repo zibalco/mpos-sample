@@ -1,1 +1,1 @@
-include ':app', ':zibalsdk'
+include ':app'
