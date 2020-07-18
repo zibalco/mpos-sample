@@ -10,6 +10,16 @@ implementation files('libs/zibalsdk.aar');
 ```
 
 ## Step Three
+Add These Lines in dependencies
+```javascript
+implementation 'androidx.appcompat:appcompat:1.1.0'
+implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+implementation 'androidx.recyclerview:recyclerview:1.1.0'
+implementation 'androidx.cardview:cardview:1.0.0'
+```
+
+
+## Step Four
 
 ```java
 try {
