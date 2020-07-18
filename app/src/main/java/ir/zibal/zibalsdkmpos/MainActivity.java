@@ -10,8 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-//import ir.zibal.zibalsdk.ZibalAPI;
-//import ir.zibal.zibalsdk.ZibalActivity;
+import ir.zibal.zibalsdk.ZibalActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,10 +34,10 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 try {
-//                    Intent intent = new Intent(MainActivity.this, ZibalActivity.class);
-//                    intent.putExtra("zibalId",zibalId);
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                    startActivity(intent);
+                    Intent intent = new Intent(MainActivity.this, ZibalActivity.class);
+                    intent.putExtra("zibalId",zibalId);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
                 } catch (Exception e) {
                     Log.d("error happened", e.toString());
                 }
