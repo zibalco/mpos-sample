@@ -6,7 +6,7 @@ Add zibalsdk.aar file in app/libs directory.
 Include below line in app level build.gradle.
 
 ```javascript
-implementation files('libs/zibalsdk-debug.aar');
+implementation files('libs/zibalsdk.aar');
 ```
 
 ## Step Three
@@ -24,4 +24,4 @@ try {
 
 
 ## Keep in mind
-Minimun sdk version must be 16.
+Minimun sdk version must be equal or greater than 16.
