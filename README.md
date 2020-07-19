@@ -48,30 +48,31 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == PAYMENT_REQUEST_CODE) {
         switch (resultCode) {
-            case ZibalActivity.RESULT_DEVICE_CONNECTION_FAILED:
+            case ZibalResponseEnum.RESULT_DEVICE_CONNECTION_FAILED:
                 Toast.makeText(MainActivity.this,"اتصال با دستگاه برقرار نشد.",Toast.LENGTH_SHORT).show();
                 break;
-            case ZibalActivity.RESULT_USER_CANCELED:
+            case ZibalResponseEnum.RESULT_USER_CANCELED:
                 Toast.makeText(MainActivity.this,"کاربر از پرداخت منصرف شده است",Toast.LENGTH_SHORT).show();
                 break;
-            case ZibalActivity.RESULT_PAYMENT_SUCCESSFUL:
+            case ZibalResponseEnum.RESULT_PAYMENT_SUCCESSFUL:
                 Toast.makeText(MainActivity.this,"پرداخت با موفقیت انجام شد.",Toast.LENGTH_SHORT).show();
                 break;
-            case ZibalActivity.RESULT_ERROR_IN_PAYMENT:
+            case ZibalResponseEnum.RESULT_ERROR_IN_PAYMENT:
                 Toast.makeText(MainActivity.this,"خطای عملیات پرداخت",Toast.LENGTH_SHORT).show();
                 break;
-            case ZibalActivity.RESULT_ZIBAL_ID_ALREADY_PAID:
+            case ZibalResponseEnum.RESULT_ZIBAL_ID_ALREADY_PAID:
                 Toast.makeText(MainActivity.this,"شناسه قبلا پرداخت شده.",Toast.LENGTH_SHORT).show();
                 break;
-            case ZibalActivity.RESULT_INVALID_ZIBAL_ID:
+            case ZibalResponseEnum.RESULT_INVALID_ZIBAL_ID:
                 Toast.makeText(MainActivity.this,"شناسه زیبال نامعتبر است.",Toast.LENGTH_SHORT).show();
                 break;
-            case ZibalActivity.RESULT_UNREACHABLE_ZIBAL_SERVER:
+            case ZibalResponseEnum.RESULT_UNREACHABLE_ZIBAL_SERVER:
                 Toast.makeText(MainActivity.this,"عدم دسترسی به سرور زیبال",Toast.LENGTH_SHORT).show();
                 break;
 
         }
     }
+
 }
 ```
 
