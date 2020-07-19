@@ -20,7 +20,6 @@ implementation 'androidx.cardview:cardview:1.0.0'
 
 
 ## Step Four
-
 ```java
 try {
     Intent intent = new Intent(MainActivity.this, ZibalActivity.class);
@@ -32,6 +31,49 @@ try {
 }
 ```
 
+## Response Types
+| Code | Value | توضیحات |
+ | :---:  | :----- | ----: |
+ | 0 |  RESULT_DEVICE_CONNECTION_FAILED | .اتصال با دستگاه برقرار نشد
+ | 1 |  RESULT_USER_CANCELED | .کاربر از پرداخت منصرف شده است
+ | 2 |  RESULT_PAYMENT_SUCCESSFUL | .پرداخت با موفقیت انجام شد
+ | 3 |  RESULT_ERROR_IN_PAYMENT | خطای عملیات پرداخت
+ | 4 |  RESULT_ZIBAL_ID_ALREADY_PAID | .شناسه قبلا پرداخت شده است
+ | 5 |  RESULT_INVALID_ZIBAL_ID | .شناسه زیبال نامعتبر است
+ | 6 |  RESULT_UNREACHABLE_ZIBAL_SERVER | عدم دسترسی به سرور زیبال
+
+**Example**
+```java
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == PAYMENT_REQUEST_CODE) {
+        switch (resultCode) {
+            case ZibalActivity.RESULT_DEVICE_CONNECTION_FAILED:
+                Toast.makeText(MainActivity.this,"اتصال با دستگاه برقرار نشد.",Toast.LENGTH_SHORT).show();
+                break;
+            case ZibalActivity.RESULT_USER_CANCELED:
+                Toast.makeText(MainActivity.this,"کاربر از پرداخت منصرف شده است",Toast.LENGTH_SHORT).show();
+                break;
+            case ZibalActivity.RESULT_PAYMENT_SUCCESSFUL:
+                Toast.makeText(MainActivity.this,"پرداخت با موفقیت انجام شد.",Toast.LENGTH_SHORT).show();
+                break;
+            case ZibalActivity.RESULT_ERROR_IN_PAYMENT:
+                Toast.makeText(MainActivity.this,"خطای عملیات پرداخت",Toast.LENGTH_SHORT).show();
+                break;
+            case ZibalActivity.RESULT_ZIBAL_ID_ALREADY_PAID:
+                Toast.makeText(MainActivity.this,"شناسه قبلا پرداخت شده.",Toast.LENGTH_SHORT).show();
+                break;
+            case ZibalActivity.RESULT_INVALID_ZIBAL_ID:
+                Toast.makeText(MainActivity.this,"شناسه زیبال نامعتبر است.",Toast.LENGTH_SHORT).show();
+                break;
+            case ZibalActivity.RESULT_UNREACHABLE_ZIBAL_SERVER:
+                Toast.makeText(MainActivity.this,"عدم دسترسی به سرور زیبال",Toast.LENGTH_SHORT).show();
+                break;
+
+        }
+    }
+}
+```
 
 ## Keep in mind
 Minimun sdk version must be equal or greater than 16.
