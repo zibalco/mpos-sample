@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        test {
+            storeFile file('C:\\Users\\ghadi\\Android\\myKeyStore.jks')
+            storePassword '784595'
+            keyAlias = 'key0'
+            keyPassword '784595'
+        }
+    }
     compileSdkVersion 28
     defaultConfig {
         applicationId "ir.zibal.zibalsdkmpos"
@@ -12,8 +20,9 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.test
         }
     }
 }
@@ -27,5 +36,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation files('libs/zibalsdk-release-v0.22.aar')
+    implementation files('libs/zibalsdk-release-v0.24.aar')
 }

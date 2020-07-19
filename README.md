@@ -31,6 +31,14 @@ try {
 }
 ```
 
+## Step Five
+Add these lines to AndroidManifest.xml
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.BLUETOOTH" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+```
+
 ## Response Types
 | Code | Value | توضیحات |
  | :---:  | :----- | ----: |
