@@ -16,35 +16,39 @@ import ir.zibal.zibalsdk.ZibalResponseEnum;
 public class MainActivity extends AppCompatActivity {
 
     final static int PAYMENT_REQUEST_CODE = 2000;
+    EditText et_zibalId;
+    Button btn_payment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button btn_payment = findViewById(R.id.payBtn);
-        final EditText et_zibalId = findViewById(R.id.zibalIdEditText);
+
+        btn_payment = findViewById(R.id.payBtn);
+        et_zibalId = findViewById(R.id.zibalIdEditText);
         btn_payment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                String zibalId = et_zibalId.getText().toString();
-                if(zibalId.length() == 0){
-                    Toast.makeText(MainActivity.this,"لطفا شناسه زیبال را وارد کنید.",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                try {
-                    Intent intent = new Intent(MainActivity.this, ZibalActivity.class);
-                    intent.putExtra("zibalId",zibalId);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivityForResult(intent,PAYMENT_REQUEST_CODE);
-                } catch (Exception e) {
-                    Log.d("error happened", e.toString());
-                }
-
-
+                callPaymentIntent();
             }
         });
+    }
+
+    protected void callPaymentIntent(){
+        String zibalId = et_zibalId.getText().toString();
+        if(zibalId.length() == 0){
+            Toast.makeText(MainActivity.this,"لطفا شناسه زیبال را وارد کنید.",Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            Intent intent = new Intent(MainActivity.this, ZibalActivity.class);
+            intent.putExtra("zibalId",zibalId);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivityForResult(intent,PAYMENT_REQUEST_CODE);
+        } catch (Exception e) {
+            Log.d("error happened", e.toString());
+        }
     }
 
 
