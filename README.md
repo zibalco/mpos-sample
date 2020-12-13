@@ -84,5 +84,18 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 }
 ```
 
+## Return intent data
+you can access these fields from returned data intent.
+
+```javascript
+//کد مرجع
+data.getStringExtra("refNumber");
+// شناسه پیگیری
+data.getStringExtra("traceNumber");
+//شناسه زیبال پرداخت شده
+data.getStringExtra("paidZibalId");
+```
+paidZibalId in Configuration Payment is null.
+
 ## Keep in mind
 Minimun sdk version must be equal or greater than 16.
