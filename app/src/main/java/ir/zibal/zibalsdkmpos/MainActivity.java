@@ -57,29 +57,38 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == PAYMENT_REQUEST_CODE) {
             switch (resultCode) {
                 case ZibalResponseEnum.RESULT_DEVICE_CONNECTION_FAILED:
-                    Toast.makeText(MainActivity.this,"اتصال با دستگاه برقرار نشد.",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "اتصال با دستگاه برقرار نشد.", Toast.LENGTH_SHORT).show();
                     break;
                 case ZibalResponseEnum.RESULT_USER_CANCELED:
-                    Toast.makeText(MainActivity.this,"کاربر از پرداخت منصرف شده است",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "کاربر از پرداخت منصرف شده است", Toast.LENGTH_SHORT).show();
                     break;
                 case ZibalResponseEnum.RESULT_PAYMENT_SUCCESSFUL:
-                    Toast.makeText(MainActivity.this,"پرداخت با موفقیت انجام شد.",Toast.LENGTH_SHORT).show();
+                    if (data != null)
+                        Toast.makeText(MainActivity.this,
+                                "پرداخت با موفقیت انجام شد." + "\n" +
+                                        "شماره مرجغ " + data.getStringExtra("refNumber") + "\n" +
+                                        "شماره رهگیری " + data.getStringExtra("traceNumber") + "\n" +
+                                        "شناسه زیبال " + data.getStringExtra("paidZibalId")
+                                , Toast.LENGTH_LONG).show();
+                    else
+                        Toast.makeText(MainActivity.this, "پرداخت با موفقیت انجام شد.", Toast.LENGTH_SHORT).show();
                     break;
                 case ZibalResponseEnum.RESULT_ERROR_IN_PAYMENT:
-                    Toast.makeText(MainActivity.this,"خطای عملیات پرداخت",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "خطای عملیات پرداخت", Toast.LENGTH_SHORT).show();
                     break;
                 case ZibalResponseEnum.RESULT_ZIBAL_ID_ALREADY_PAID:
-                    Toast.makeText(MainActivity.this,"شناسه قبلا پرداخت شده.",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "شناسه قبلا پرداخت شده.", Toast.LENGTH_SHORT).show();
                     break;
                 case ZibalResponseEnum.RESULT_INVALID_ZIBAL_ID:
-                    Toast.makeText(MainActivity.this,"شناسه زیبال نامعتبر است.",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "شناسه زیبال نامعتبر است.", Toast.LENGTH_SHORT).show();
                     break;
                 case ZibalResponseEnum.RESULT_UNREACHABLE_ZIBAL_SERVER:
-                    Toast.makeText(MainActivity.this,"عدم دسترسی به سرور زیبال",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "عدم دسترسی به سرور زیبال", Toast.LENGTH_SHORT).show();
                     break;
 
             }
         }
+
 
     }
 }
