@@ -1,7 +1,5 @@
 package ir.zibal.zibalsdkmpos;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,15 +8,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import ir.zibal.zibalsdk.ZibalActivity;
 import ir.zibal.zibalsdk.ZibalResponseEnum;
 
 public class MainActivity extends AppCompatActivity {
 
+
     final static int PAYMENT_REQUEST_CODE = 2000;
     EditText et_zibalId;
     Button btn_payment;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
                 callPaymentIntent();
             }
         });
+
+
     }
 
     protected void callPaymentIntent(){
@@ -51,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PAYMENT_REQUEST_CODE) {
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                     if (data != null)
                         Toast.makeText(MainActivity.this,
                                 "پرداخت با موفقیت انجام شد." + "\n" +
-                                        "شماره مرجغ " + data.getStringExtra("refNumber") + "\n" +
+                                        "شماره مرجع " + data.getStringExtra("refNumber") + "\n" +
                                         "شماره رهگیری " + data.getStringExtra("traceNumber") + "\n" +
                                         "شناسه زیبال " + data.getStringExtra("paidZibalId")
                                 , Toast.LENGTH_LONG).show();
@@ -88,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }
-
 
     }
 }
