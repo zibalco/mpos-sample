@@ -77,6 +77,9 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
             case ZibalResponseEnum.RESULT_UNREACHABLE_ZIBAL_SERVER:
                 Toast.makeText(MainActivity.this,"عدم دسترسی به سرور زیبال",Toast.LENGTH_SHORT).show();
                 break;
+             case ZibalResponseEnum.MINIMUM_SDK_VERSION_NOT_MET:
+                Toast.makeText(MainActivity.this, "ورژن Sdk زیبال خود را بروزرسانی کنید.", Toast.LENGTH_SHORT).show();
+                break;
 
         }
     }
