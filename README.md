@@ -102,4 +102,4 @@ data.getStringExtra("paidZibalId");
 paidZibalId in Configuration Payment is null.
 
 ## Keep in mind
-Minimun sdk version must be equal or greater than 16.
+Minimun sdk version must be equal or greater than 21.
