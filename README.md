@@ -16,6 +16,7 @@ implementation 'androidx.appcompat:appcompat:1.1.0'
 implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 implementation 'androidx.recyclerview:recyclerview:1.1.0'
 implementation 'androidx.cardview:cardview:1.0.0'
+implementation 'com.android.volley:volley:1.1.1'
 ```
 
 
@@ -76,6 +77,9 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
                 break;
             case ZibalResponseEnum.RESULT_UNREACHABLE_ZIBAL_SERVER:
                 Toast.makeText(MainActivity.this,"عدم دسترسی به سرور زیبال",Toast.LENGTH_SHORT).show();
+                break;
+             case ZibalResponseEnum.MINIMUM_SDK_VERSION_NOT_MET:
+                Toast.makeText(MainActivity.this, "ورژن Sdk زیبال خود را بروزرسانی کنید.", Toast.LENGTH_SHORT).show();
                 break;
 
         }
