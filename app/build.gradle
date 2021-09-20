@@ -2,12 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
-        test {
-            storeFile file('C:\\Users\\ghadi\\Android\\myKeyStore.jks')
-            storePassword '784595'
-            keyAlias = 'key0'
-            keyPassword '784595'
-        }
     }
     compileSdkVersion 28
     defaultConfig {
@@ -37,5 +31,5 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.android.volley:volley:1.1.1'
-    implementation files('libs/zibalsdk-release-v0.36.aar')
+    implementation files('libs/zibalsdk-release-v0.37.aar')
 }
